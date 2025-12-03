@@ -1,0 +1,305 @@
+<div class="wrapper-main" wrapper-main="enabled">
+		<div class="wrapper-inner">
+	  
+		  <div class="d-flex dFlexLayoutMain">
+			
+			<div class="flex-col mr-auto content-wrapper w-100">
+			  <header class="header-main bg-white" global-header="app">
+				  <nav class="navbar navbar-expand-lg navbar-light d-flex justify-content-between">
+					<a class="navbar-brand" href="javascript:void(0)"><img src="assets/img/logo.svg" width="180px"></a>
+					<!-- <a class="navbar-brand mr-auto ml-3" href="#"><img src="assets/img/logo2.svg" width="30px"></a> -->
+					<!-- <span class="mr-auto"><i class="material-icons">calendar_today</i>&nbsp; 22/12/2018</span> -->
+					<select id="spd" name="spd" [(ngModel)]="selectedSpd" (change)="spdChange()">
+						<option [ngValue]="'Select'">Select</option>
+						<option *ngFor="let spd of spds" [ngValue]="spd">{{spd.divisionName}}</option>
+					</select>
+					<span class="mr-auto"><i class="material-icons">schedule</i>&nbsp; {{currentTime}}</span>
+					<button class="navbar-toggler d-none" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+					  <span class="navbar-toggler-icon"></span>
+					</button>
+				  
+					<div class="collapse navbar-collapse" id="navbarSupportedContent">
+					  <ul class="navbar-nav">
+						<li class="nav-item dropdown">
+						  <a class="nav-link dropdown-toggle p-0" href="#" role="button" data-toggle="dropdown"><img src="assets/img/profile.svg"></a>
+						  <div class="dropdown-menu">
+							<a class="dropdown-item" href="javascript:void(0)">{{decode.username}}</a>
+							<div class="dropdown-divider"></div>
+							<a class="dropdown-item" href="javascript:void(0)" (click)="logout()">Log Out</a>
+						  </div>
+						</li>
+					  </ul>
+					</div><!-- /.collapse navbar-collapse -->
+				  </nav>
+			  </header><!-- /.header-main -->
+			  <div class="content-main scroll content-height position-relative" global-content="app">
+				<section class="content px-3 py-2 h-100vh" style="max-height:calc(100vh - 58px);">
+				  <div class="kot-wrapper d-flex flex-column h-100">
+	  
+					  <div class="d-flex w-100">
+						  <div class="col-table">
+							  <header><h5 class="text-uppercase font-weight-bold">Pending KOTs</h5></header>
+							  <div class="table-responsive">
+								  <table class="table table-bordered table-sm">
+									  <thead class="thead-dark">
+										  <tr>
+											  <th>K#</th>
+											  <th>Table</th>
+											  <th>Time</th>
+											  <th>Waiter</th>
+											  <th>A</th>
+											  <th>R</th>
+										  </tr>
+									  </thead>
+									  <tbody class="table-hover">
+										<ng-container *ngFor="let kot of pendingKots;let i=index;">
+										  <tr>
+											  <td>{{kot.kotNo}}</td>
+											  <td (click)="displayTableItems(kot)" style="cursor: pointer;">{{kot.tableNo}}</td>
+											  <td>{{kot.createdTime}}</td>
+											  <td>{{kot.waiterName}}</td>
+											  <td><a class="icon-btn"><i (click)="updateKotStatus(kot.kotId, 'ORDERED', 'ACCEPTED')" class="material-icons" style="cursor: pointer;"> done </i></a></td>
+											  <td><a class="icon-btn"><i (click)="updateKotStatus(kot.kotId, 'ACCEPTED', 'READY')" class="material-icons" style="cursor: pointer;"> thumb_up </i></a></td>
+										  </tr>
+										  <ng-container *ngIf="kot.tableItems && kot.tableItems.length" >
+											<tr class="expand-child">
+												<td colspan="6">
+													<table class="table table-sm">
+														<thead class="thead-dark">
+															<tr>
+																<th>Items</th>
+																<th>A</th>
+																<th>R</th>
+															</tr>
+														</thead>
+														<tbody class="table-hover">
+															<tr *ngFor="let item of kot.tableItems;let j=index;">
+																<td>{{item.itemname}}</td>
+																<td>
+																	<div class="input-group">
+																		<select class="custom-select" name="aqty{{i}}" [(ngModel)]="item.selectedAccQty">
+																				<option *ngFor="let num of getNumAsArray(item.accQty);" [ngValue]="num" >{{num}}</option>
+																		</select>
+																		<div class="input-group-append">
+																			<label class="input-group-text p-0" (click)="updateKotQtyStatus(item.accIds, 'ACCEPTED',item.selectedAccQty)">
+																				<a class="icon-btn" style="cursor: pointer;"><i class="material-icons"> done </i></a>
+																				</label>
+																		</div>
+																	</div>
+																</td>
+																<td>
+																	<div class="input-group">
+																		<select class="custom-select" name="rqty{{i}}" [(ngModel)]="item.selectedRQty">
+																				<option *ngFor="let num of getNumAsArray(item.rQty);" [ngValue]="num" >{{num}}</option>
+																		</select>
+																		<div class="input-group-append">
+																			<label class="input-group-text p-0" style="cursor: pointer;" (click)="updateKotQtyStatus(item.rIds, 'READY',item.selectedRQty)">
+																				<a class="icon-btn"><i class="material-icons"> thumb_up </i></a>
+																			</label>
+																		</div>
+																	</div>
+																</td>
+															</tr>
+														</tbody>
+													</table>
+												</td>
+											</tr>
+											</ng-container>
+										</ng-container>
+									  </tbody>
+								  </table>
+							  </div>
+						  </div>
+						  <div class="col-table">
+							  <header><h5 class="text-uppercase font-weight-bold">Pending Items (WIP)</h5></header>
+							  <div class="table-responsive">
+								  <table class="table table-bordered table-sm">
+									  <thead class="thead-dark">
+										  <tr>
+											  <th>Item</th>
+											  <th>Qty</th>
+											  <th>R</th>
+										  </tr>
+									  </thead>
+									  <tbody class="table-hover">
+										<ng-container *ngFor="let item of pendingItems;let i=index;">
+											<tr>
+												<td>
+													<ng-container *ngIf="item.instruction" >
+														<span (click)="displayInstrTable(item)" style="cursor: pointer;color: #337ab7;padding-right: 4px;"><i class="fa fa-info-circle" aria-hidden="true"></i></span>
+													</ng-container>
+													<strong class="color" style="cursor: pointer;" (click)="displayreadyItemTable(item)" [style.color]="item.colorCode">{{item.itemname}}<ng-container *ngIf="item.base_qty!=1" > - {{item.uomSize}}</ng-container></strong>
+												</td>
+												<td>{{item.qty}}</td>
+												<td><a class="icon-btn"><i style="cursor: pointer;" (click)="updateKotQtyStatus(item.ktqIds, 'READY',item.qty)" class="material-icons"> thumb_up </i></a></td>
+											</tr>
+											<ng-container *ngIf="item.instrTable && item.instrTable.length" >
+												<tr class="expand-child">
+													<td colspan="3">
+														<!--<header><h5>Gobi Chilly Manchurian</h5></header>-->
+														<table class="table table-sm">
+															<thead class="thead-dark">
+																<tr>
+																	<th>Instructions</th>
+																	<th>K#</th>
+																	<th>T#</th>
+																	<th>R</th>
+																</tr>
+															</thead>
+															<tbody class="table-hover">
+																<tr *ngFor="let instr of item.instrTable" >
+																	<td>{{instr.instruction}}</td>
+																	<td>{{instr.kotNo}}</td>
+																	<td>{{instr.tableNo}}</td>
+																	<td>
+																		<div class="input-group">
+																			<select class="custom-select" name="instrqty{{i}}" [(ngModel)]="instr.selectedQty">
+																				<option *ngFor="let num of getNumAsArray(instr.qty);" [ngValue]="num" >{{num}}</option>
+																			</select>
+																			<div class="input-group-append">
+																				<label style="cursor: pointer;" (click)="updateKotQtyStatus(instr.ktqIds, 'READY',instr.selectedQty)" class="input-group-text p-0"><a class="icon-btn"><i class="material-icons"> thumb_up </i></a></label>
+																			</div>
+																		</div>
+																	</td>
+																</tr>
+															</tbody>
+														</table>
+													</td>
+												</tr>
+											</ng-container>
+											<ng-container *ngIf="item.readyItemTable && item.readyItemTable.length">
+												<tr class="expand-child">
+														<td colspan="3">
+															<!--<header><h5>Gobi Chilly Manchurian</h5></header>-->
+															<table class="table table-sm">
+																<thead class="thead-dark">
+																	<tr>
+																		<th>K#</th>
+																		<th>T#</th>
+																		<th>R</th>
+																	</tr>
+																</thead>
+																<tbody class="table-hover">
+																	<tr *ngFor="let rd of item.readyItemTable" >
+																		<td>{{rd.kotNo}}</td>
+																		<td>{{rd.tableNo}}</td>
+																		<td>
+																			<div class="input-group">
+																				<select class="custom-select" name="instrqty{{i}}" [(ngModel)]="rd.selectedQty">
+																					<option *ngFor="let num of getNumAsArray(rd.qty);" [ngValue]="num" >{{num}}</option>
+																				</select>
+																				<div class="input-group-append">
+																					<label style="cursor: pointer;" (click)="updateKotQtyStatus(rd.ktqIds, 'READY',rd.selectedQty)" class="input-group-text p-0"><a class="icon-btn"><i class="material-icons"> thumb_up </i></a></label>
+																				</div>
+																			</div>
+																		</td>
+																	</tr>
+																</tbody>
+															</table>
+														</td>
+													</tr>
+											</ng-container>
+										</ng-container>
+									  </tbody>
+								  </table>
+							  </div>
+						  </div>
+						  <div class="col-table">
+							  <header><h5 class="text-uppercase font-weight-bold">Items Ready for Delivery</h5></header>
+							  <div class="table-responsive">
+								  <table class="table table-bordered table-sm">
+									  <thead class="thead-dark">
+										  <tr>
+											  <th>Item</th>
+											  <th>Qty</th>
+											  <th>T#</th>
+											  <th>D</th>
+										  </tr>
+									  </thead>
+									  <tbody class="table-hover">
+										  <tr *ngFor="let item of itemsReadyForDelivery">
+											  <td>{{item.itemname}} <ng-container *ngIf="item.base_qty!=1" >- {{item.uomSize}}</ng-container></td>
+											  <td>{{item.qty}}</td>
+											  <td>{{item.tableNo}}</td>
+											  <td>
+												  <div class="input-group">
+													  <select name="qty{{i}}" [(ngModel)]="item.selectedQty" class="custom-select">
+															<option *ngFor="let num of getNumAsArray(item.qty);" [ngValue]="num" >{{num}}</option>
+													  </select>
+													  <div class="input-group-append">
+														  <label style="cursor: pointer;" (click)="deliverKotItem(item.ktqIds, item.selectedQty)" class="input-group-text p-0"><a class="icon-btn"><i class="material-icons"> done </i></a></label>
+													  </div>
+												  </div>
+											  </td>
+										  </tr>
+									  </tbody>
+								  </table>
+							  </div>
+						  </div>
+					  </div>
+					  <div class="container-fluid mt-auto">
+						  <div class="row">
+							  <div class="col-md-6">
+								  <header><h5 class="text-uppercase font-weight-bold">Delivered Items</h5></header>
+								  <div class="table-responsive">
+									  <table class="table table-bordered table-sm">
+										  <thead class="thead-dark">
+											  <tr>
+												  <th>K#</th>
+												  <th>T#</th>
+												  <th>Waiter</th>
+												  <th>Item</th>
+												  <th>Qty</th>
+											  </tr>
+										  </thead>
+										  <tbody class="table-hover">
+											  <tr *ngFor="let item of deliveredItems">
+												  <td>{{item.kotNo}}</td>
+												  <td>{{item.tableNo}}</td>
+												  <td>{{item.waiterName}}</td>
+												  <td>{{item.itemname}} <ng-container *ngIf="item.base_qty!=1" >- {{item.uomSize}}</ng-container></td>
+												  <td>{{item.qty}}</td>
+											  </tr>
+										  </tbody>
+									  </table>
+								  </div>
+							  </div>
+							  <div class="col-md-6">
+								  <header><h5 class="text-uppercase font-weight-bold">Cancelled Items</h5></header>
+								  <div class="table-responsive">
+									  <table class="table table-bordered table-sm">
+										  <thead class="thead-dark">
+											  <tr>
+												  <th>K#</th>
+												  <th>T#</th>
+												  <th>Waiter</th>
+												  <th>Item</th>
+												  <th>Qty</th>
+											  </tr>
+										  </thead>
+										  <tbody class="table-hover">
+											  <tr *ngFor="let item of cancelledItems">
+												  <td>{{item.kotNo}}</td>
+												  <td>{{item.tableNo}}</td>
+												  <td>{{item.waiterName}}</td>
+												  <td>{{item.itemname}} <ng-container *ngIf="item.base_qty!=1" >- {{item.uomSize}}</ng-container></td>
+												  <td>{{item.qty}}</td>
+											  </tr>
+										  </tbody>
+									  </table>
+								  </div>
+							  </div>
+						  </div>
+					  </div>
+	  
+				  </div><!-- /.layout-table-list -->
+				</section>
+	  
+			  </div><!-- /.content-main -->
+			</div><!-- /.content-wrapper -->
+		  </div><!-- /.dFlexLayoutMain -->
+		  
+	  
+		</div><!-- /.wrapper-inner -->
+	  </div><!-- /.wrapper-main -->
+	  

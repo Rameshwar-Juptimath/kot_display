@@ -1,0 +1,26 @@
+<div class="wrapper-main" wrapper-main="enabled">
+    <div class="wrapper-inner">
+  
+      <div class="loginWrapper d-flex justify-content-center">
+          <div class="form align-self-center">
+            <form id="loginForm" name="loginForm" #loginForm="ngForm" (ngSubmit)="onSubmit()">
+                <h2 class="text-center mb-4 text-uppercase">Login</h2>
+                <div class="form-group">
+                    <label for="">Username:</label>
+                    <input type="text" class="form-control" placeholder="Username" [(ngModel)]="user.username"
+                    name="username" #username="ngModel" required="required">
+                </div>
+                <div class="form-group">
+                    <label for="">Password:</label>
+                    <input type="password" class="form-control" placeholder="**********" [(ngModel)]="user.password"
+                    name="password" #password="ngModel" required="required" autocomplete="current-password">
+                </div>
+                <div>
+                    <button type="submit" class="btn btn-primary btn-block">Login</button>
+                </div>
+            </form>
+          </div>
+      </div>
+  
+    </div><!-- /.wrapper-inner -->
+  </div><!-- /.wrapper-main -->
